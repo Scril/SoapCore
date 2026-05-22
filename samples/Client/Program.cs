@@ -1,45 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.ServiceModel;
-using System.Threading.Tasks;
+﻿using System.Net.Http.Json;
+using System.Text;
 using Models;
 
-namespace Client
+var baseUrl = $"http://{Environment.MachineName}:5050";
+using var http = new HttpClient { BaseAddress = new Uri(baseUrl) };
+
+// --- Ping ---
+var pingResult = await http.GetStringAsync($"/ping?s=hey");
+Console.WriteLine("Ping result: {0}", pingResult.Trim('"'));
+
+// --- PingComplexModel ---
+var complexInput = new ComplexModelInput
 {
-	public class Program
-	{
-		public static void Main()
-		{
-			var binding = new BasicHttpBinding();
-			var endpoint = new EndpointAddress(new Uri(string.Format("http://{0}:5050/Service.svc", Environment.MachineName)));
-			var channelFactory = new ChannelFactory<ISampleService>(binding, endpoint);
-			var serviceClient = channelFactory.CreateChannel();
-			var result = serviceClient.Ping("hey");
-			Console.WriteLine("Ping method result: {0}", result);
+    StringProperty = Guid.NewGuid().ToString(),
+    IntProperty = int.MaxValue / 2,
+    ListProperty = ["test", "list", "of", "strings"],
+    DateTimeOffsetProperty = new DateTimeOffset(2018, 12, 31, 13, 59, 59, TimeSpan.FromHours(1))
+};
 
-			var complexModel = new ComplexModelInput
-			{
-				StringProperty = Guid.NewGuid().ToString(),
-				IntProperty = int.MaxValue / 2,
-				ListProperty = new List<string> { "test", "list", "of", "strings" },
-				DateTimeOffsetProperty = new DateTimeOffset(2018, 12, 31, 13, 59, 59, TimeSpan.FromHours(1))
-			};
+var complexResult = await http.PostAsJsonAsync("/ping-complex", complexInput);
+complexResult.EnsureSuccessStatusCode();
+var complexResponse = await complexResult.Content.ReadFromJsonAsync<ComplexModelResponse>();
+Console.WriteLine(
+    "PingComplexModel result. FloatProperty: {0}, StringProperty: {1}, ListProperty: {2}, DateTimeOffsetProperty: {3}, EnumProperty: {4}",
+    complexResponse!.FloatProperty,
+    complexResponse.StringProperty,
+    string.Join(", ", complexResponse.ListProperty ?? []),
+    complexResponse.DateTimeOffsetProperty,
+    complexResponse.TestEnum);
 
-			var complexResult = serviceClient.PingComplexModel(complexModel);
-			Console.WriteLine("PingComplexModel result. FloatProperty: {0}, StringProperty: {1}, ListProperty: {2}, DateTimeOffsetProperty: {3}, EnumProperty: {4}",
-				complexResult.FloatProperty, complexResult.StringProperty, string.Join(", ", complexResult.ListProperty), complexResult.DateTimeOffsetProperty, complexResult.TestEnum);
+// --- VoidMethod (was out parameter, now returns a response object) ---
+var voidResponse = await http.GetFromJsonAsync<VoidMethodResponse>("/void-method");
+Console.WriteLine("Void method result: {0}", voidResponse!.Value);
 
-			serviceClient.VoidMethod(out var stringValue);
-			Console.WriteLine("Void method result: {0}", stringValue);
+// --- AsyncMethod ---
+var asyncResult = await http.GetFromJsonAsync<int>("/async-method");
+Console.WriteLine("Async method result: {0}", asyncResult);
 
-			var asyncMethodResult = serviceClient.AsyncMethod().Result;
-			Console.WriteLine("Async method result: {0}", asyncMethodResult);
+// --- XmlMethod ---
+var xmlContent = new StringContent("<test>string</test>", Encoding.UTF8, "application/xml");
+var xmlResponse = await http.PostAsync("/xml-method", xmlContent);
+xmlResponse.EnsureSuccessStatusCode();
+Console.WriteLine("XmlMethod completed.");
 
-			var xmlelement = System.Xml.Linq.XElement.Parse("<test>string</test>");
-			serviceClient.XmlMethod(xmlelement);
-
-			Console.ReadKey();
-		}
-	}
-}
+Console.ReadKey();

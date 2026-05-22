@@ -1,33 +1,24 @@
-﻿using System.ServiceModel;
-using System.Threading.Tasks;
+﻿namespace Models;
 
-namespace Models
+/// <summary>
+/// Service contract for the sample REST API.
+/// </summary>
+public interface ISampleService
 {
-    [ServiceContract]
-    public interface ISampleService
-    {
-        [OperationContract]
-        string Ping(string s);
+    string Ping(string s);
+    ComplexModelResponse PingComplexModel(ComplexModelInput inputModel);
+    int[] IntArray();
+    ComplexReturnModel[] ComplexReturnModel();
+    VoidMethodResponse VoidMethod();
+    Task<int> AsyncMethod();
+    int? NullableMethod(bool? arg);
+    void XmlMethod(string xml);
+}
 
-        [OperationContract]
-        ComplexModelResponse PingComplexModel(ComplexModelInput inputModel);
-
-        [OperationContract]
-        int[] IntArray();
-
-        [OperationContract]
-        ComplexReturnModel[] ComplexReturnModel();
-
-        [OperationContract]
-        void VoidMethod(out string s);
-
-        [OperationContract]
-        Task<int> AsyncMethod();
-
-        [OperationContract]
-        int? NullableMethod(bool? arg);
-
-        [OperationContract]
-        void XmlMethod(System.Xml.Linq.XElement xml);
-    }
+/// <summary>
+/// Response wrapper for VoidMethod (replaces the out parameter).
+/// </summary>
+public class VoidMethodResponse
+{
+    public string? Value { get; set; }
 }

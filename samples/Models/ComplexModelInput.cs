@@ -1,55 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using System.ServiceModel;
+﻿namespace Models;
 
-namespace Models
+public class ComplexModelInput
 {
-	[DataContract]
-	public class ComplexModelInput
+    public string? StringProperty { get; set; }
+    public int IntProperty { get; set; }
+    public List<string>? ListProperty { get; set; }
+    public DateTimeOffset DateTimeOffsetProperty { get; set; }
+    public List<ComplexObject>? ComplexListProperty { get; set; }
+    public List<BaseObject>? DerivedObjects { get; set; }
+}
+
+public class ComplexObject
+{
+    public string? StringProperty { get; set; }
+    public int IntProperty { get; set; }
+}
+
+public class BaseObject
+{
+    public string Name { get; set; } = nameof(BaseObject);
+}
+
+public class DerivedObject : BaseObject
+{
+    public DerivedObject()
     {
-		[DataMember]
-		public string StringProperty { get; set; }
-
-		[DataMember]
-		public int IntProperty { get; set; }
-
-		[DataMember]
-		public List<string> ListProperty { get; set; }
-
-        [DataMember]
-        public DateTimeOffset DateTimeOffsetProperty { get; set; }
-
-        [DataMember]
-        public List<ComplexObject> ComplexListProperty { get; set; }
-
-        [DataMember]
-        public List<BaseObject> DerivedObjects { get; set; }
-
-        [DataContract]
-        [ServiceKnownType(typeof(DerivedObject))]
-        public class DerivedObject : BaseObject
-        {
-            public DerivedObject()
-            {
-                Name = nameof(DerivedObject); 
-            }
-        }
-    }
-
-    [DataContract]
-    public class ComplexObject
-    {
-        [DataMember]
-        public string StringProperty { get; set; }
-
-        [DataMember]
-        public int IntProperty { get; set; }
-    }
-
-    [DataContract]
-    public class BaseObject
-    {
-        public string Name { get; set; } = nameof(BaseObject);
+        Name = nameof(DerivedObject);
     }
 }

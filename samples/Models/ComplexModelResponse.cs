@@ -1,31 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
+﻿namespace Models;
 
-namespace Models
+public class ComplexModelResponse
 {
-	[DataContract]
-	public class ComplexModelResponse
-	{
-		[DataMember]
-		public float FloatProperty { get; set; }
+    public float FloatProperty { get; set; }
+    public string? StringProperty { get; set; }
+    public List<string>? ListProperty { get; set; }
+    public DateTimeOffset DateTimeOffsetProperty { get; set; }
+    public TestEnum TestEnum { get; set; }
+}
 
-		[DataMember]
-		public string StringProperty { get; set; }
-
-		[DataMember]
-		public List<string> ListProperty { get; set; }
-
-		[DataMember]
-		public DateTimeOffset DateTimeOffsetProperty { get; set; }
-
-		[DataMember]
-		public TestEnum TestEnum { get; set; }
-	}
-
-	public enum TestEnum
-	{
-		One,
-		Two
-	}
+public enum TestEnum
+{
+    One,
+    Two
 }

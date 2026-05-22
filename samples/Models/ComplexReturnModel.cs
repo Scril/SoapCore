@@ -1,13 +1,7 @@
-﻿using System.Runtime.Serialization;
+﻿namespace Models;
 
-namespace Models
+public class ComplexReturnModel
 {
-    [DataContract]
-    public class ComplexReturnModel
-    {
-        [DataMember]
-        public int Id { get; set; }
-        [DataMember]
-        public string Name { get; set; }
-    }
+    public int Id { get; set; }
+    public string? Name { get; set; }
 }
